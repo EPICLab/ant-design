@@ -866,6 +866,9 @@ exports[`Transfer should support render value and label in item 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyPress={[Function]}
+                  onKeyUp={[Function]}
                   prefixCls="ant-checkbox"
                   style={Object {}}
                   type="checkbox"
@@ -880,6 +883,9 @@ exports[`Transfer should support render value and label in item 1`] = `
                       onBlur={[Function]}
                       onChange={[Function]}
                       onFocus={[Function]}
+                      onKeyDown={[Function]}
+                      onKeyPress={[Function]}
+                      onKeyUp={[Function]}
                       type="checkbox"
                     />
                     <span
@@ -1277,6 +1283,9 @@ exports[`Transfer should support render value and label in item 1`] = `
                             onBlur={[Function]}
                             onChange={[Function]}
                             onFocus={[Function]}
+                            onKeyDown={[Function]}
+                            onKeyPress={[Function]}
+                            onKeyUp={[Function]}
                             prefixCls="ant-checkbox"
                             style={Object {}}
                             type="checkbox"
@@ -1291,6 +1300,9 @@ exports[`Transfer should support render value and label in item 1`] = `
                                 onBlur={[Function]}
                                 onChange={[Function]}
                                 onFocus={[Function]}
+                                onKeyDown={[Function]}
+                                onKeyPress={[Function]}
+                                onKeyUp={[Function]}
                                 type="checkbox"
                               />
                               <span
@@ -1565,6 +1577,9 @@ exports[`Transfer should support render value and label in item 1`] = `
                   onBlur={[Function]}
                   onChange={[Function]}
                   onFocus={[Function]}
+                  onKeyDown={[Function]}
+                  onKeyPress={[Function]}
+                  onKeyUp={[Function]}
                   prefixCls="ant-checkbox"
                   style={Object {}}
                   type="checkbox"
@@ -1579,6 +1594,9 @@ exports[`Transfer should support render value and label in item 1`] = `
                       onBlur={[Function]}
                       onChange={[Function]}
                       onFocus={[Function]}
+                      onKeyDown={[Function]}
+                      onKeyPress={[Function]}
+                      onKeyUp={[Function]}
                       type="checkbox"
                     />
                     <span
