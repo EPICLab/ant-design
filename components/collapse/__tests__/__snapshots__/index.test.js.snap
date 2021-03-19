@@ -2,7 +2,7 @@
 
 exports[`Collapse could override default openMotion 1`] = `
 <div
-  class="ant-collapse ant-collapse-icon-position-left"
+  class="ant-collapse ant-collapse-icon-position-undefined"
 >
   <div
     class="ant-collapse-item ant-collapse-item-active"
@@ -36,7 +36,8 @@ exports[`Collapse could override default openMotion 1`] = `
       This is panel header 1
     </div>
     <div
-      class="ant-collapse-content ant-collapse-content-active"
+      class="ant-collapse-content ant-collapse-content-active ant-motion-collapse-enter ant-motion-collapse-enter-start ant-motion-collapse"
+      style="height: 0px; opacity: 0;"
     >
       <div
         class="ant-collapse-content-box"
@@ -50,7 +51,7 @@ exports[`Collapse could override default openMotion 1`] = `
 
 exports[`Collapse should render extra node of panel 1`] = `
 <div
-  class="ant-collapse ant-collapse-icon-position-left"
+  class="ant-collapse ant-collapse-icon-position-undefined"
 >
   <div
     class="ant-collapse-item"
@@ -137,7 +138,7 @@ exports[`Collapse should render extra node of panel 1`] = `
 
 exports[`Collapse should support remove expandIcon 1`] = `
 <div
-  class="ant-collapse ant-collapse-icon-position-left"
+  class="ant-collapse ant-collapse-icon-position-undefined"
 >
   <div
     class="ant-collapse-item"
