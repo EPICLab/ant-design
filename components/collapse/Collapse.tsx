@@ -64,15 +64,15 @@ const Collapse: CollapseInterface = props => {
     const { expandIcon } = props;
     let icon: {} | null | undefined;
 
-    if (expandIcon) {
-      icon = expandIcon(panelProps) as React.ReactNode;
-    } else {
+    if (!expandIcon) {
       icon = (<RightOutlined rotate={!panelProps.isActive ? undefined : 90} />) as React.ReactNode;
+    } else {
+      icon = expandIcon(panelProps) as React.ReactNode;
     }
 
-    const cloneElem = cloneElement(icon, () => ({
-      className: classNames((icon as any).props.className, `${prefixCls}-arrow`),
-    }));
+    const cloneElem = cloneElement(icon, function callback() {
+      return { className: classNames((icon as any).props.className, `${prefixCls}-arrow`) };
+    });
 
     return cloneElem;
   };
@@ -88,6 +88,7 @@ const Collapse: CollapseInterface = props => {
     },
     className,
   );
+
   const openAnimation = { ...animation, appear() {} };
 
   return (
