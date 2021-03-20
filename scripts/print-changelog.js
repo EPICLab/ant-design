@@ -1,21 +1,22 @@
 /* eslint-disable no-await-in-loop, no-console */
-const chalk = require('chalk');
+const fetch = require('node-fetch');
 const { spawn } = require('child_process');
 const jsdom = require('jsdom');
-const jQuery = require('jquery');
-const fetch = require('node-fetch');
-const open = require('open');
-const fs = require('fs-extra');
-const path = require('path');
 const simpleGit = require('simple-git/promise');
 const inquirer = require('inquirer');
+const jQuery = require('jquery');
+const open = require('open');
+const fs = require('fs-extra');
+const chalk = require('chalk');
+const path = require('path');
 
 const { JSDOM } = jsdom;
+
 const { window } = new JSDOM();
+const $ = jQuery(window);
+
 const { document } = new JSDOM('').window;
 global.document = document;
-
-const $ = jQuery(window);
 
 const QUERY_TITLE = '.gh-header-title .js-issue-title';
 const QUERY_DESCRIPTION_LINES = '.comment-body table tbody tr';
@@ -41,25 +42,28 @@ const cwd = process.cwd();
 const git = simpleGit(cwd);
 
 function getDescription(entity) {
+  const retStr = !entity ? '' : null;
   if (!entity) {
-    return '';
+    return retStr;
   }
-  const descEle = entity.element.find('td:last');
-  let htmlContent = descEle.html();
-  htmlContent = htmlContent.replace(/<code>([^<]*)<\/code>/g, '`$1`');
-  return htmlContent.trim();
+
+  let descEle = entity.element.find('td:last').html();
+  descEle = descEle.replace(/<code>([^<]*)<\/code>/g, '`$1`');
+  return descEle.trim();
 }
 
 async function printLog() {
   const tags = await git.tags();
+
   const { fromVersion } = await inquirer.prompt([
     {
       type: 'list',
       name: 'fromVersion',
-      message: '🏷  Please choose tag to compare with current branch:',
+      message: '🏷  Please select as tag to compare with the current branch:',
       choices: tags.all.reverse().slice(0, 10),
     },
   ]);
+
   let { toVersion } = await inquirer.prompt([
     {
       type: 'list',
@@ -131,15 +135,14 @@ async function printLog() {
         });
       });
 
-      const english = getDescription(lines.find(line => line.text.includes('🇺🇸 English')));
       const chinese = getDescription(lines.find(line => line.text.includes('🇨🇳 Chinese')));
+      const english = getDescription(lines.find(line => line.text.includes('🇺🇸 English')));
+
       if (english) {
         console.log(`  🇨🇳  ${english}`);
-      }
-      if (chinese) {
+      } else if (chinese) {
         console.log(`  🇺🇸  ${chinese}`);
       }
-
       validatePRs.push({
         pr,
         hash,
@@ -150,13 +153,16 @@ async function printLog() {
       });
     }
 
-    if (validatePRs.length === 1) {
+    const compareVal = 1;
+
+    if (compareVal === validatePRs.length) {
       console.log(chalk.cyan(' - Match PR:', `#${validatePRs[0].pr}`));
+
       prList = prList.concat(validatePRs);
     } else if (message.includes('docs:')) {
       console.log(chalk.cyan(' - Skip document!'));
     } else {
-      console.log(chalk.yellow(' - Miss match!'));
+      console.log(chalk.cyan(' - Miss match!'));
       prList.push({
         hash,
         title: message,
@@ -170,10 +176,10 @@ async function printLog() {
   console.log('\n', chalk.green('Done. Here is the log:'));
 
   function printPR(lang, postLang) {
-    prList.forEach(entity => {
-      const { pr, author, hash, title } = entity;
+    for (let i = 0; i < prList.length(); i++) {
+      const { pr, author, hash, title } = prList[i];
       if (pr) {
-        const str = postLang(entity[lang]);
+        const str = postLang(prList[i][lang]);
         let icon = '';
         if (str.toLowerCase().includes('fix') || str.includes('修复')) {
           icon = '🐞';
@@ -192,12 +198,16 @@ async function printLog() {
           `🆘 Miss Match: ${title} -> https://github.com/ant-design/ant-design/commit/${hash}`,
         );
       }
-    });
+    }
   }
 
   // Chinese
   console.log('\n');
+  console.log('\n');
+  console.log('\n');
   console.log(chalk.yellow('🇨🇳 Chinese changelog:'));
+  console.log('\n');
+  console.log('\n');
   console.log('\n');
   printPR('chinese', chinese =>
     chinese[chinese.length - 1] === '。' || !chinese ? chinese : `${chinese}。`,
@@ -207,6 +217,8 @@ async function printLog() {
 
   // English
   console.log(chalk.yellow('🇺🇸 English changelog:'));
+  console.log('\n');
+  console.log('\n');
   console.log('\n');
   printPR('english', english => {
     english = english.trim();
@@ -233,6 +245,7 @@ async function printLog() {
       shell: true,
     },
   );
+
   ls.stdout.on('data', data => {
     console.log(data.toString());
   });
@@ -240,7 +253,6 @@ async function printLog() {
   console.log(chalk.green('Start changelog preview editor...'));
   setTimeout(() => {
     open('http://localhost:2893/');
-  }, 1000);
+  }, 10000);
 }
-
 printLog();
