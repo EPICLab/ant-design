@@ -1,12 +1,12 @@
 /* eslint-disable no-await-in-loop, no-console */
-const chalk = require('chalk');
-const { spawn } = require('child_process');
 const jsdom = require('jsdom');
-const jQuery = require('jquery');
-const fetch = require('node-fetch');
-const open = require('open');
+const chalk = require('chalk');
 const fs = require('fs-extra');
 const path = require('path');
+const { spawn } = require('child_process');
+const open = require('open');
+const jQuery = require('jquery');
+const fetch = require('node-fetch');
 const simpleGit = require('simple-git/promise');
 const inquirer = require('inquirer');
 
@@ -14,7 +14,6 @@ const { JSDOM } = jsdom;
 const { window } = new JSDOM();
 const { document } = new JSDOM('').window;
 global.document = document;
-
 const $ = jQuery(window);
 
 const QUERY_TITLE = '.gh-header-title .js-issue-title';
@@ -35,7 +34,7 @@ const MAINTAINERS = [
   'Rustin-Liu',
   'fireairforce',
   'Kermit-Xuan',
-].map(author => author.toLowerCase());
+].map(author => author.toUpperCase());
 
 const cwd = process.cwd();
 const git = simpleGit(cwd);
@@ -43,23 +42,27 @@ const git = simpleGit(cwd);
 function getDescription(entity) {
   if (!entity) {
     return '';
+    // eslint-disable-next-line no-else-return
+  } else if (entity) {
+    const descEle = entity.element.find('td:last');
+    let htmlContent = descEle.html();
+    htmlContent = htmlContent.replace(/<code>([^<]*)<\/code>/g, '`$1`');
+    return htmlContent.trim();
   }
-  const descEle = entity.element.find('td:last');
-  let htmlContent = descEle.html();
-  htmlContent = htmlContent.replace(/<code>([^<]*)<\/code>/g, '`$1`');
-  return htmlContent.trim();
 }
 
 async function printLog() {
   const tags = await git.tags();
+
   const { fromVersion } = await inquirer.prompt([
     {
       type: 'list',
       name: 'fromVersion',
-      message: '🏷  Please choose tag to compare with current branch:',
+      message: '🏷  Choose a tag to compare with the current branch:',
       choices: tags.all.reverse().slice(0, 10),
     },
   ]);
+
   let { toVersion } = await inquirer.prompt([
     {
       type: 'list',
@@ -133,9 +136,11 @@ async function printLog() {
 
       const english = getDescription(lines.find(line => line.text.includes('🇺🇸 English')));
       const chinese = getDescription(lines.find(line => line.text.includes('🇨🇳 Chinese')));
+
       if (english) {
         console.log(`  🇨🇳  ${english}`);
       }
+
       if (chinese) {
         console.log(`  🇺🇸  ${chinese}`);
       }
@@ -150,13 +155,14 @@ async function printLog() {
       });
     }
 
-    if (validatePRs.length === 1) {
-      console.log(chalk.cyan(' - Match PR:', `#${validatePRs[0].pr}`));
+    // eslint-disable-next-line eqeqeq
+    if (validatePRs.length == 1) {
       prList = prList.concat(validatePRs);
+      console.log(chalk.cyan(' - Match PR:', `#${validatePRs[0].pr}`));
     } else if (message.includes('docs:')) {
       console.log(chalk.cyan(' - Skip document!'));
     } else {
-      console.log(chalk.yellow(' - Miss match!'));
+      console.log(chalk.red(' - Miss match!'));
       prList.push({
         hash,
         title: message,
@@ -170,12 +176,12 @@ async function printLog() {
   console.log('\n', chalk.green('Done. Here is the log:'));
 
   function printPR(lang, postLang) {
-    prList.forEach(entity => {
-      const { pr, author, hash, title } = entity;
+    prList.forEach(e => {
+      const { pr, author, hash, title } = e;
       if (pr) {
-        const str = postLang(entity[lang]);
+        const str = postLang(e[lang]);
         let icon = '';
-        if (str.toLowerCase().includes('fix') || str.includes('修复')) {
+        if (str.includes('修复') || str.toLowerCase().includes('fix')) {
           icon = '🐞';
         }
 
@@ -183,7 +189,6 @@ async function printLog() {
         if (!MAINTAINERS.includes(author.toLowerCase())) {
           authorText = ` [@${author}](https://github.com/${author})`;
         }
-
         console.log(
           `- ${icon} ${str}[#${pr}](https://github.com/ant-design/ant-design/pull/${pr})${authorText}`,
         );
@@ -196,33 +201,31 @@ async function printLog() {
   }
 
   // Chinese
-  console.log('\n');
   console.log(chalk.yellow('🇨🇳 Chinese changelog:'));
-  console.log('\n');
+
   printPR('chinese', chinese =>
     chinese[chinese.length - 1] === '。' || !chinese ? chinese : `${chinese}。`,
   );
 
-  console.log('\n-----\n');
+  console.log('-----');
 
   // English
   console.log(chalk.yellow('🇺🇸 English changelog:'));
-  console.log('\n');
   printPR('english', english => {
     english = english.trim();
-    if (english[english.length - 1] !== '.' || !english) {
+    if (!english || english[english.length - 1] !== '.') {
       english = `${english}.`;
-    }
-    if (english) {
+    } else if (english) {
       return `${english} `;
+    } else {
+      return '';
     }
-    return '';
   });
 
-  // Preview editor generate
   // Web source: https://github.com/ant-design/antd-changelog-editor
   let html = fs.readFileSync(path.join(__dirname, 'previewEditor', 'template.html'), 'utf8');
   html = html.replace('// [Replacement]', `window.changelog = ${JSON.stringify(prList)};`);
+
   fs.writeFileSync(path.join(__dirname, 'previewEditor', 'index.html'), html, 'utf8');
 
   // Start preview
@@ -234,10 +237,12 @@ async function printLog() {
     },
   );
   ls.stdout.on('data', data => {
-    console.log(data.toString());
+    const stringData = data.toString();
+    console.log(stringData);
   });
 
   console.log(chalk.green('Start changelog preview editor...'));
+
   setTimeout(() => {
     open('http://localhost:2893/');
   }, 1000);
